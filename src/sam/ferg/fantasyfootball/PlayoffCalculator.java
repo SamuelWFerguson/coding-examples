@@ -7,13 +7,16 @@ import java.util.Random;
 public class PlayoffCalculator {
 	
 	// amount of runs for simulation
-	public static final int RUNS = 100000;
+	public static final int RUNS = 1000000;
 	
 	// amount of weeks played so far
 	public static final int WEEKS_PLAYED = 9;
 	
 	// predict chaos (its totally legit)
-	public static final int CHAOS_POINTS = 35;
+	public static final int CHAOS_POINTS = 45;
+	
+	// choose which player to analyze, the PTA
+	public static final String PLAYER_TO_ANALYZE = "mitchell";
 
 	public static void main(String args[]) {
 		
@@ -54,7 +57,7 @@ public class PlayoffCalculator {
 		roster.add(josh);
 		roster.add(mitchell);
 		
-		// add in all of our matchups
+		// broncos, vikings, ravens, texans on BYE
 		Week week10 = new Week("Week 10");
 		week10.add(new Matchup(ferg, mitchell));
 		week10.add(new Matchup(honschopp, will));
@@ -62,6 +65,7 @@ public class PlayoffCalculator {
 		week10.add(new Matchup(coire, josh));
 		week10.add(new Matchup(ryan, matt));
 		
+		// bills, dolphins, patriots, jets, browns, and 49ers on BYE
 		Week week11 = new Week("Week 11");
 		week11.add(new Matchup(ferg, josh));
 		week11.add(new Matchup(honschopp, ryan));
@@ -69,10 +73,11 @@ public class PlayoffCalculator {
 		week11.add(new Matchup(coire, eric));
 		week11.add(new Matchup(matt, mitchell));
 		
+		// rams and chiefs on BYE
 		Week week12 = new Week("Week 12");
 		week12.add(new Matchup(ferg, eric));
 		week12.add(new Matchup(honschopp, mitchell, 0.8, 1.0));
-		week12.add(new Matchup(shane, ryan));
+		week12.add(new Matchup(shane, ryan, 0.9, 1.0));
 		week12.add(new Matchup(coire, will));
 		week12.add(new Matchup(matt, josh));
 		
@@ -109,9 +114,9 @@ public class PlayoffCalculator {
 					
 					//give random variability to PF scored
 					team1Points += (double) random.nextInt(team1.getBoom()) + random.nextInt(CHAOS_POINTS);
-					team1Points -= (double) random.nextInt(team1.getBust())+ random.nextInt(CHAOS_POINTS);
-					team2Points += (double) random.nextInt(team2.getBoom())+ random.nextInt(CHAOS_POINTS);
-					team2Points -= (double) random.nextInt(team2.getBust())+ random.nextInt(CHAOS_POINTS);
+					team1Points -= (double) random.nextInt(team1.getBust()) + random.nextInt(CHAOS_POINTS);
+					team2Points += (double) random.nextInt(team2.getBoom()) + random.nextInt(CHAOS_POINTS);
+					team2Points -= (double) random.nextInt(team2.getBust()) + random.nextInt(CHAOS_POINTS);
 					
 					// adjust based on matchup strength
 					team1Points = team1Points * m.getTeam1MatchupStrength();
@@ -155,12 +160,15 @@ public class PlayoffCalculator {
 			roster.sort(new PlayoffComparator());
 			for (int j = 0; j < 4; j++) {
 				roster.get(j).addPlayoff();
-			}
-			
-			// analyze how match-ups went for player to win
-			
-			
-			
+				// record results when specific player gets to playoffs
+				if (roster.get(j).getName() == PLAYER_TO_ANALYZE) {
+					for (Week w : schedule) {
+						for (Matchup m : w.getMatchups()) {
+							m.giveWinnerSpecialWin();
+						}
+					}
+				}
+			}			
 		}
 			
 		// sort based on total play-offs
@@ -172,14 +180,15 @@ public class PlayoffCalculator {
 			for (Matchup m : w.getMatchups()) {
 				double team1Ratio = (double) m.getTeam1Wins() / (double) RUNS;
 				double team2Ratio = (double) m.getTeam2Wins() / (double) RUNS;
+				
+				// in case we divided by zero or something
 				if (team1Ratio > 100) team1Ratio = 1.0;
 				if (team2Ratio > 100) team2Ratio = 1.0;
 				
 				System.out.printf("\t" + m.getTeam1().getName() + " (" + m.getTeam1MatchupStrength() + ") Vs " + m.getTeam2().getName() + " (" + m.getTeam2MatchupStrength() + ")\n");
 				System.out.printf("\t" + "Team " + m.getTeam1().getName() + ": " + "%.1f" + "%%\n", team1Ratio * 100.0);
 				System.out.printf("\t" + "Team " + m.getTeam2().getName() + ": " + "%.1f" + "%%\n", team2Ratio * 100.0);
-				
-				System.out.printf("\n");
+				System.out.print("\n");
 				
 			}
 		}
@@ -194,6 +203,60 @@ public class PlayoffCalculator {
 			System.out.println((i + 1) + ": " + roster.get(i).getName());
 			System.out.println("\t" + numOfPlayoffs + " playoff appearences");
 			System.out.printf("\t" + "appearing in " + "%.1f" + "%% of playoffs \n", (ratio * 100.0));
+		}
+		System.out.print("\n");
+		
+		// try to find the total playoffs for our PTA
+		int totalRunsForPlayerToAnalyze = 0;
+		for (Player p : roster) {
+			if (p.getName() == PLAYER_TO_ANALYZE) {
+				totalRunsForPlayerToAnalyze = p.getNumberOfPlayoffs();
+			}
+		}
+		
+		// print matchup analyze for PTA
+		if (totalRunsForPlayerToAnalyze != 0) {
+			for (Week w : schedule) {
+				System.out.println(w.getWeekName() + " for " + PLAYER_TO_ANALYZE + " play-offs");
+				for (Matchup m : w.getMatchups()) {
+					double team1SpecialRatio = (double) m.getTeam1SpecialWins() / (double) totalRunsForPlayerToAnalyze;
+					double team2SpecialRatio = (double) m.getTeam2SpecialWins() / (double) totalRunsForPlayerToAnalyze;
+					
+					double team1Ratio = (double) m.getTeam1Wins() / (double) RUNS;
+					double team2Ratio = (double) m.getTeam2Wins() / (double) RUNS;
+					
+					double team1RatioDiff = team1SpecialRatio - team1Ratio;
+					double team2RatioDiff = team2SpecialRatio - team2Ratio;
+					
+					// in case we divided by zero or something
+					if (team1Ratio > 100) team1Ratio = 1.0;
+					if (team2Ratio > 100) team2Ratio = 1.0;
+					
+					System.out.printf("\t" + m.getTeam1().getName() + " Vs " + m.getTeam2().getName() + "\n");
+					
+					// show percentages for team 1
+					System.out.printf("\t" + "Team " + m.getTeam1().getName() + ": " + "%.1f" + "%% ", team1SpecialRatio * 100.0);
+					System.out.print("(");
+					if (team1RatioDiff > 0) {
+						System.out.print("+");
+					}
+					System.out.printf("%.1f%%)\n", team1RatioDiff * 100);
+					
+					// show percentages for team 2
+					System.out.printf("\t" + "Team " + m.getTeam2().getName() + ": " + "%.1f" + "%% ", team2SpecialRatio * 100.0);
+					System.out.print("(");
+					if (team2RatioDiff > 0) {
+						System.out.print("+");
+					}
+					System.out.printf("%.1f%%)\n", team2RatioDiff * 100);
+					
+					System.out.print("\n");
+					
+				}
+			} 
+			System.out.print("\n");
+		} else {
+			System.out.println(PLAYER_TO_ANALYZE + " does not make it to the playoffs in any simulations");
 		}
 	}
 	
