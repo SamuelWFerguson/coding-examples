@@ -1,8 +1,11 @@
 package sam.ferg.fantasyfootball;
 
 import java.util.Comparator;
+import java.util.Random;
 
 public class PlayoffComparator implements Comparator<Player>{
+	
+	private Random random = new Random();
 
 	@Override
 	public int compare(Player p1, Player p2) {
@@ -15,10 +18,10 @@ public class PlayoffComparator implements Comparator<Player>{
 		}
 		// break ratio tie by comparing points for
 		if (p1.getRatio() == p2.getRatio()) {
-			if (p1.getPointsFor() > p2.getPointsFor()) {
+			boolean randomBool = random.nextBoolean();
+			if (randomBool) {
 				return -1;
-			}
-			if (p1.getPointsFor() < p2.getPointsFor()) {
+			} else {
 				return 1;
 			}
 		}

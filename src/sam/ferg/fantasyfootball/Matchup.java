@@ -7,12 +7,12 @@ public class Matchup {
 	private Player team2;
 	private Player winner;
 	private Player loser;
-	private double team1MatchupStrength;
-	private double team2MatchupStrength;
 	private int team1Wins;
 	private int team2Wins;
 	private int team1SpecialWins;
 	private int team2SpecialWins;
+	private double team1Points;
+	private double team2Points; 
 	
 	Matchup() {
 		team1Wins = 0;
@@ -28,19 +28,17 @@ public class Matchup {
 		team2Wins = 0;
 		team1SpecialWins = 0;
 		team2SpecialWins = 0;
-		team1MatchupStrength = 1.0;
-		team2MatchupStrength = 1.0;
 	}
 	
-	Matchup(Player t1, Player t2, double strength1, double strength2) {
+	Matchup(Player t1, Player t2, double team1Points, double team2Points) {
 		team1 = t1;
 		team2 = t2;
 		team1Wins = 0;
 		team2Wins = 0;
 		team1SpecialWins = 0;
 		team2SpecialWins = 0;
-		team1MatchupStrength = strength1;
-		team2MatchupStrength = strength2;
+		this.team1Points = team1Points; 
+		this.team2Points = team2Points;
 	}
 	
 	
@@ -106,27 +104,6 @@ public class Matchup {
 	public int getTeam2Wins() {
 		return team2Wins;
 	}
-
-	public double getTeam1MatchupStrength() {
-		return team1MatchupStrength;
-	}
-
-	public void setTeam1MatchupStrength(double team1MatchupStrength) {
-		this.team1MatchupStrength = team1MatchupStrength;
-	}
-
-	public double getTeam2MatchupStrength() {
-		return team2MatchupStrength;
-	}
-
-	public void setTeam2MatchupStrength(double team2MatchupStrength) {
-		this.team2MatchupStrength = team2MatchupStrength;
-	}
-	
-	public void setMatchupStrengths(double strength1, double strength2) {
-		team1MatchupStrength = strength1;
-		team2MatchupStrength = strength2;
-	}
 	
 	public void addTeam1SpecialWin() {
 		team1SpecialWins++;
@@ -152,5 +129,13 @@ public class Matchup {
 		if (team.getName() == team2.getName()) {
 			team2SpecialWins++;
 		}
+	}
+	
+	public double getTeam1Points() {
+		return team1Points;
+	}
+	
+	public double getTeam2Points() {
+		return team2Points;
 	}
 }

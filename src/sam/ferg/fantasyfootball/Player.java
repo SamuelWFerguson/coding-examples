@@ -1,13 +1,15 @@
 package sam.ferg.fantasyfootball;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Player {
 	private String name;
 	private int wins;
 	private int losses;
 	private int numberOfPlayoffs;
-	private int boom;
-	private int bust;
 	private double pointsFor;
+	private List<Double> points;
 	
 	Player(String n) {
 		name = n;
@@ -15,17 +17,13 @@ public class Player {
 		losses = 0;
 		pointsFor = 0;
 		numberOfPlayoffs = 0;
+		points = new ArrayList<Double>();
 	}
 	
-	public void setPlayer(int w, int l, double pf) {
+	public void setPlayer(int w, int l, double pf, List<Double> points) {
 		wins = w;
 		losses = l;
 		pointsFor = pf;
-	}
-	
-	public void setBoomBust(int bm, int bst) {
-		boom = bm;
-		bust = bst;
 	}
 	
 	public void addPlayoff() {
@@ -78,13 +76,5 @@ public class Player {
 	
 	public String getName() {
 		return name;
-	}
-	
-	public int getBoom() {
-		return boom;
-	}
-	
-	public int getBust() {
-		return bust;
 	}
 }

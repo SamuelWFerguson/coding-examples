@@ -6,10 +6,12 @@ import java.util.List;
 public class Week {
 	private List<Matchup> matchups;
 	private String weekName;
+	private boolean isWeekOver = false;
 	
-	Week(String name) {
+	Week(String name, boolean isWeekOver) {
 		weekName = name;
 		matchups = new ArrayList<Matchup>();
+		this.isWeekOver = isWeekOver;
 	}
 	
 	public void add(Matchup matchup) {
@@ -26,6 +28,10 @@ public class Week {
 	
 	public String getWeekName() {
 		return weekName;
+	}
+	
+	public boolean isWeekOver() {
+		return isWeekOver;
 	}
 }
 
