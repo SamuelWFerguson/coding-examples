@@ -6,24 +6,31 @@ import java.util.List;
 public class Player {
 	private String name;
 	private int wins;
+	private int baseWins;
 	private int losses;
+	private int baseLosses;
 	private int numberOfPlayoffs;
-	private double pointsFor;
 	private List<Double> points;
 	
 	Player(String n) {
 		name = n;
 		wins = 0;
 		losses = 0;
-		pointsFor = 0;
 		numberOfPlayoffs = 0;
 		points = new ArrayList<Double>();
 	}
 	
-	public void setPlayer(int w, int l, double pf, List<Double> points) {
+	public void setPlayer(int w, int l, List<Double> p) {
 		wins = w;
+		baseWins = w;
 		losses = l;
-		pointsFor = pf;
+		baseLosses = l;
+		points = p;
+	}
+	
+	public void resetPlayerWinsAndLosses() {
+		wins = baseWins;
+		losses = baseLosses;
 	}
 	
 	public void addPlayoff() {
@@ -62,19 +69,11 @@ public class Player {
 		return losses;
 	}
 	
-	public void setPointsFor(double pf) {
-		pointsFor = pf;
-	}
-	
-	public void addPointsFor(double pf) {
-		pointsFor += pf;
-	}
-	
-	public double getPointsFor() {
-		return pointsFor;
-	}
-	
 	public String getName() {
 		return name;
+	}
+	
+	public List<Double> getPoints() {
+		return points;
 	}
 }

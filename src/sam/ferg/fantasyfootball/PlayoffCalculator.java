@@ -10,7 +10,7 @@ public class PlayoffCalculator {
 	public static final int RUNS = 1000000;
 	
 	// choose which player to analyze, the PTA
-	public static final String PLAYER_TO_ANALYZE = "matt";
+	public static final String PLAYER_TO_ANALYZE = "ferg";
 
 	public static void main(String args[]) {
 		
@@ -23,23 +23,31 @@ public class PlayoffCalculator {
 		// populate both with players and league schedule
 		populateScheduleAndRoster(schedule, roster);
 		
-		// Run simulations for the rest of the league
-		runPlayoffPathAnalysis(roster, schedule);
+		// set player stats by parsing schedule
+		setPlayerStats(schedule, roster);
+		
+		// run simulations for the rest of the league
+		runPlayoffPathAnalysis(schedule, roster);
 	}
 	
 	/**
 	 * While giving 50/50 chances to players in matchups and in their tiebreakers, how often does a team make the playoffs?
+	 * This tells us something of how hard a players 'paths' are for getting into the playoffs.
 	 * 
 	 * @param roster All teams in the league
 	 * @param schedule All matchups in the league
 	 */
-	public static void runPlayoffPathAnalysis(List<Player> roster, List<Week> schedule) {
+	public static void runPlayoffPathAnalysis(List<Week> schedule, List<Player> roster) {
 		Random random = new Random();
 		
 		// simulate season however many times
 		for (int i = 0; i < RUNS; i++) {
+			
 			// reset players
-			setPlayerStats(roster);
+			for (Player p : roster) {
+				p.resetPlayerWinsAndLosses();
+			}
+			
 			// simulate the season
 			for (Week w: schedule) {
 				
@@ -56,17 +64,23 @@ public class PlayoffCalculator {
 					// randomly pick winner with 50/50 chances
 					boolean team1IsTheWinner = random.nextBoolean();
 					
-					// determine winner of matchup
+					// determine winner of matchup either by random or if winner has been preset
 					if (team1IsTheWinner) {
 						m.setWinner(team1);
 						m.setLoser(team2);
 						
-						// add to records
+						// add to matchup records
+						m.addWinToTeam(team1);
+						
+						// add to player records
 						team1.addWin();
 						team2.addLoss();
 					} else {
 						m.setWinner(team2);
 						m.setLoser(team1);
+						
+						// add to matchup records
+						m.addWinToTeam(team2);
 						
 						// add to records
 						team1.addLoss();
@@ -139,6 +153,7 @@ public class PlayoffCalculator {
 				
 				System.out.println(w.getWeekName() + " for " + PLAYER_TO_ANALYZE + " play-offs");
 				for (Matchup m : w.getMatchups()) {
+					// when a player makes the playoffs, how did each matchup turn out? get the win ratio for team1 and team2 
 					double team1SpecialRatio = (double) m.getTeam1SpecialWins() / (double) totalRunsForPlayerToAnalyze;
 					double team2SpecialRatio = (double) m.getTeam2SpecialWins() / (double) totalRunsForPlayerToAnalyze;
 					
@@ -176,72 +191,53 @@ public class PlayoffCalculator {
 		}
 	}
 	
-	public static Double estimatePointsForPlayer(Player player) {
-		Double points = new Double(0.0);
+	public static void setPlayerStats(List<Week> schedule, List<Player> roster) {
 		
-		return points;
-	}
-	
-	public static void setPlayerStats(List<Player> roster) {
+		int wins;
+		int losses;
+		List<Double> points;
+		
 		for (Player p : roster) {
-			List<Double> points = new ArrayList<Double>();
-			int wins = 0;
-			int losses = 0;
-			double pf = 0.0;
-			switch(p.getName()) {
-				case "honschopp":
-					wins = 8;
-					losses = 2;
-					pf = 1155.1;
-					break;
-				case "coire":
-					wins = 7;
-					losses = 3;
-					pf = 883.9;
-					break;
-				case "matt":
-					wins = 5;
-					losses = 5;
-					pf= 956.2;
-					break;
-				case "ferg":
-					wins = 5;
-					losses = 5;
-					pf = 887.6;
-					break;
-				case "shane":
-					wins = 4;
-					losses = 6;
-					pf = 852.8;
-					break;
-				case "ryan":
-					wins = 7;
-					losses = 3;
-					pf = 941.9;
-					break;
-				case "will":
-					wins = 4;
-					losses = 6;
-					pf = 970.7;
-					break;
-				case "eric":
-					wins = 4;
-					losses = 6;
-					pf = 950.8;
-					break;
-				case "josh":
-					wins = 4;
-					losses = 6;
-					pf = 885.6;
-					break;
-				case "mitchell":
-					wins = 2;
-					losses = 8;
-					pf = 746.2;
-					break;
+			
+			wins = 0;
+			losses = 0;
+			points = new ArrayList<Double>();
+			
+			for (Week w : schedule) {
+				
+				// skip games that haven't happened yet
+				if (!w.isWeekOver()) {
+					continue;
+				}
+				
+				for (Matchup m : w.getMatchups()) {
+					
+					// move on if Player p was not in this matchup
+					if (m.getTeam1().getName() != p.getName() && m.getTeam2().getName() != p.getName()) {
+						continue;
+					}
+					
+					// add a win if our player won
+					if (m.getWinner().getName() == p.getName()) {
+						wins++;
+					}
+					
+					// add a loss if our player lost
+					if (m.getLoser().getName() == p.getName()) {
+						losses++;
+					}
+					
+					// add points to point list
+					points.add(m.getPointsForPlayer(p));
+					
+				}
 			}
-			p.setPlayer(wins, losses, pf, points);
+			
+			// set player stats in roster
+			p.setPlayer(wins, losses, points);
+			
 		}
+		
 	}
 	
 	private static void populateScheduleAndRoster(List<Week> schedule, List<Player> roster) {
@@ -300,46 +296,46 @@ public class PlayoffCalculator {
 		
 		Week week5 = new Week("Week 5", true);
 		week5.add(new Matchup(ferg, shane, 114.3, 72.2));
-		week5.add(new Matchup());
-		week5.add(new Matchup());
-		week5.add(new Matchup());
-		week5.add(new Matchup());
+		week5.add(new Matchup(mitchell, coire, 109.9, 65.1));
+		week5.add(new Matchup(ryan, josh, 102.0, 83.1));
+		week5.add(new Matchup(matt, honschopp, 81.8, 115.2));
+		week5.add(new Matchup(will, eric, 97.0, 80.1));
 		
 		Week week6 = new Week("Week 6", true);
-		week6.add(new Matchup());
-		week6.add(new Matchup());
-		week6.add(new Matchup());
-		week6.add(new Matchup());
-		week6.add(new Matchup());
+		week6.add(new Matchup(ferg, mitchell, 138.6, 73.3));
+		week6.add(new Matchup(matt, ryan, 116.2, 105.1));
+		week6.add(new Matchup(honschopp, will, 163.4, 72.6));
+		week6.add(new Matchup(shane, eric, 97.2, 95.0));
+		week6.add(new Matchup(coire, josh, 95.8, 95.2));
 		
 		Week week7 = new Week("Week 7", true);
-		week7.add(new Matchup());
-		week7.add(new Matchup());
-		week7.add(new Matchup());
-		week7.add(new Matchup());
-		week7.add(new Matchup());
+		week7.add(new Matchup(josh, ferg, 77.1, 85.1));
+		week7.add(new Matchup(ryan, honschopp, 91.1, 130.8));
+		week7.add(new Matchup(will, shane, 99.1, 111.6));
+		week7.add(new Matchup(eric, coire, 80.6, 81.4));
+		week7.add(new Matchup(mitchell, matt, 79.2, 142.2));
 		
 		Week week8 = new Week("Week 8", true);
-		week8.add(new Matchup());
-		week8.add(new Matchup());
-		week8.add(new Matchup());
-		week8.add(new Matchup());
-		week8.add(new Matchup());
+		week8.add(new Matchup(ferg, eric, 84.6, 138.3));
+		week8.add(new Matchup(shane, ryan, 95.7, 84.5));
+		week8.add(new Matchup(coire, will, 98.2, 66.6));
+		week8.add(new Matchup(matt, josh, 114.1, 126.6));
+		week8.add(new Matchup(honschopp, mitchell, 135.4, 97.5));
 		
 		Week week9 = new Week("Week 9", true);
-		week9.add(new Matchup());
-		week9.add(new Matchup());
-		week9.add(new Matchup());
-		week9.add(new Matchup());
-		week9.add(new Matchup());
+		week9.add(new Matchup(ferg, ryan, 91.7, 111.0));
+		week9.add(new Matchup(matt, will, 124.8, 107.0));
+		week9.add(new Matchup(honschopp, eric, 128.9, 117.5));
+		week9.add(new Matchup(shane, josh, 80.3, 107.6));
+		week9.add(new Matchup(coire, mitchell, 113.2, 79.1));
 		
 		// broncos, vikings, ravens, texans on BYE
 		Week week10 = new Week("Week 10", true);
-		week10.add(new Matchup(ferg, mitchell));
-		week10.add(new Matchup(honschopp, will));
-		week10.add(new Matchup(shane, eric));
-		week10.add(new Matchup(coire, josh));
-		week10.add(new Matchup(ryan, matt));
+		week10.add(new Matchup(ferg, mitchell, 174.3, 96.4));
+		week10.add(new Matchup(honschopp, will, 111.6, 106.2));
+		week10.add(new Matchup(shane, eric, 44.0, 105.0));
+		week10.add(new Matchup(coire, josh, 75.8, 145.9));
+		week10.add(new Matchup(ryan, matt, 107.7, 66.9));
 		
 		// bills, dolphins, patriots, jets, browns, and 49ers on BYE
 		Week week11 = new Week("Week 11", false);

@@ -1,7 +1,5 @@
 package sam.ferg.fantasyfootball;
 
-import java.util.Random;
-
 public class Matchup {
 	private Player team1;
 	private Player team2;
@@ -39,6 +37,14 @@ public class Matchup {
 		team2SpecialWins = 0;
 		this.team1Points = team1Points; 
 		this.team2Points = team2Points;
+		if (team1Points > team2Points) {
+			winner = team1;
+			loser = team2;
+		} else {
+			winner = team2;
+			loser = team1;
+		}
+		
 	}
 	
 	
@@ -48,19 +54,6 @@ public class Matchup {
 	
 	public Player getTeam2() {
 		return team2;
-	}
-	
-	public Player chooseRandomWinner() {
-		Random random = new Random();
-		
-		switch (random.nextInt(2)) {
-		case 0:
-			return team1;
-		case 1:
-			return team2;
-		default:
-			return null;
-		}
 	}
 	
 	public Player getOtherTeam(Player team) {
@@ -73,15 +66,29 @@ public class Matchup {
 		return null;
 	}
 	
-	public void setWinner(Player team) {
-		// add win to team1?
+	public Double getPointsForPlayer(Player p) {
+		
+		if (p.getName() == team1.getName()) {
+			return team1Points;
+		}
+		
+		if (p.getName() == team2.getName()) {
+			return team2Points;
+		}
+		
+		return null;
+	}
+	
+	public void addWinToTeam(Player team) {
 		if (team.getName() == team1.getName()) {
 			team1Wins++;
 		}
-		// add win to team2?
 		if (team.getName() == team2.getName()) {
 			team2Wins++;
 		}
+	}
+	
+	public void setWinner(Player team) {
 		winner = team;
 	}
 	
