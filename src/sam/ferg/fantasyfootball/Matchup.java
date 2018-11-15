@@ -11,6 +11,7 @@ public class Matchup {
 	private int team2SpecialWins;
 	private double team1Points;
 	private double team2Points; 
+	private Player testWinner;
 	
 	Matchup() {
 		team1Wins = 0;
@@ -144,5 +145,13 @@ public class Matchup {
 	
 	public double getTeam2Points() {
 		return team2Points;
+	}
+	
+	public void setTestWinner(Player w) {
+		testWinner = w;
+	}
+	
+	public Player getTestWinner() {
+		return testWinner;
 	}
 }

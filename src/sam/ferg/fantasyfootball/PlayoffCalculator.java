@@ -64,6 +64,16 @@ public class PlayoffCalculator {
 					// randomly pick winner with 50/50 chances
 					boolean team1IsTheWinner = random.nextBoolean();
 					
+					// check for if any winner is set for testing
+					if (m.getTestWinner() != null) {
+						if (m.getTestWinner().getName() == team1.getName()) {
+							team1IsTheWinner = true;
+						}
+						if (m.getTestWinner().getName() == team2.getName()) {
+							team1IsTheWinner = false;
+						}
+					}
+					
 					// determine winner of matchup either by random or if winner has been preset
 					if (team1IsTheWinner) {
 						m.setWinner(team1);
@@ -329,7 +339,6 @@ public class PlayoffCalculator {
 		week9.add(new Matchup(shane, josh, 80.3, 107.6));
 		week9.add(new Matchup(coire, mitchell, 113.2, 79.1));
 		
-		// broncos, vikings, ravens, texans on BYE
 		Week week10 = new Week("Week 10", true);
 		week10.add(new Matchup(ferg, mitchell, 174.3, 96.4));
 		week10.add(new Matchup(honschopp, will, 111.6, 106.2));
