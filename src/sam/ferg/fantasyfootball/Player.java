@@ -41,8 +41,8 @@ public class Player {
 		return numberOfPlayoffs;
 	}
 	
-	public double getRatio() {
-		return wins/losses;
+	public float getRatio() {
+		return ((float) wins/ (float) losses);
 	}
 	
 	public void addWin() {

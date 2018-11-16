@@ -57,16 +57,6 @@ public class Matchup {
 		return team2;
 	}
 	
-	public Player getOtherTeam(Player team) {
-		if (team.getName() == team1.getName()) {
-			return team2;
-		}
-		if (team.getName() == team2.getName()) {
-			return team1;
-		}
-		return null;
-	}
-	
 	public Double getPointsForPlayer(Player p) {
 		
 		if (p.getName() == team1.getName()) {
@@ -88,6 +78,7 @@ public class Matchup {
 			team2Wins++;
 		}
 	}
+	
 	
 	public void setWinner(Player team) {
 		winner = team;
