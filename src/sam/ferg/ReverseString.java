@@ -28,6 +28,7 @@ public class ReverseString {
 			
 			if (inputString.compareTo("quit") == 0) {
 				System.out.println("Quitting");
+				input.close();
 				return;
 			}
 			

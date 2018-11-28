@@ -19,15 +19,19 @@ public class BatterUp {
 		int atbats = input.nextInt();
 		if (atbats <= 0) {
 			System.out.println("Expected more than zero at-bats. Exiting program.");
+			input.close();
 			return;
 		}
 		
 		System.out.println("Input the results of each, seperated by a space");
 		List<Integer> playerHits = new ArrayList<Integer>();
 		
-		//getting the hits input from the user as a string
+		// getting the hits input from the user as a string
 		String hitsAsString = input.next();
 		hitsAsString += input.nextLine();
+		
+		// close input
+		input.close();
 		
 		int hitAsInt = 0;
 		for (String hitAsString: hitsAsString.split(" ")) {
